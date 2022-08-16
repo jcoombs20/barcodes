@@ -30,7 +30,7 @@ app.post('/clean', function(req, res) {
   var data = req.body;
   //console.log(data);
   data.names.forEach(function(name) {
-    fs.unlink(name, function(err) {
+    fs.unlink(__dirname + "/" + name, function(err) {
       if(err) {
         console.log(err);
       }
@@ -48,7 +48,7 @@ app.post('/update', function(req, res) {
   var data = req.body;
   //console.log(data);
 
-  fs.readFile("files/qrcodes_unique_counts.json", function(err, file) {
+  fs.readFile(__dirname + "/files/qrcodes_unique_counts.json", function(err, file) {
     if(err) {
       console.log(err);
     }
@@ -57,13 +57,13 @@ app.post('/update', function(req, res) {
       //***counter value updated
       if(parseInt(data.nextLabel) > parseInt(tmpJSON[data.lab][data.app][data.year])) {
         tmpJSON[data.lab][data.app][data.year] = data.nextLabel;
-        fs.writeFile("files/qrcodes_unique_counts.json", JSON.stringify(tmpJSON), function(err) {
+        fs.writeFile(__dirname + "/files/qrcodes_unique_counts.json", JSON.stringify(tmpJSON), function(err) {
           if(err) {
             console.log(err);
           }
           else {
             var newFile = data.url.replace("temp", "labels");
-            fs.copyFile(data.url, newFile, function(err) {
+            fs.copyFile(__dirname + "/" + data.url, __dirname + "/" + newFile, function(err) {
               if(err) {
                 console.log(err);
               }
@@ -77,7 +77,7 @@ app.post('/update', function(req, res) {
       //***Counter value not updated
       else {
         var newFile = data.url.replace("temp", "labels");
-        fs.copyFile(data.url, newFile, function(err) {
+        fs.copyFile(__dirname + "/" + data.url, __dirname + "/" + newFile, function(err) {
           if(err) {
             console.log(err);
           }
@@ -93,7 +93,7 @@ app.post('/update', function(req, res) {
 
 app.post('/files', function(req, res) {
   var tmpTimes = [];
-  fs.readdir("./labels", function(err, files) {
+  fs.readdir(__dirname + "/labels", function(err, files) {
     if(err) {
       console.log(err);
     }
@@ -101,7 +101,7 @@ app.post('/files', function(req, res) {
       files = files.map(function (fileName) {
         return {
           name: fileName,
-          time: fs.statSync("labels/" + fileName).mtime.getTime()
+          time: fs.statSync(__dirname + "/labels/" + fileName).mtime.getTime()
         };
       })
       .sort(function (a, b) {
@@ -110,7 +110,7 @@ app.post('/files', function(req, res) {
         return v.name; });
 
       files.forEach(function(file) {
-        var tmpStats = fs.statSync("labels/" + file);
+        var tmpStats = fs.statSync(__dirname + "/labels/" + file);
         tmpTimes.push(tmpStats.birthtime.toLocaleString('en-US', { timeZone: 'America/New_York' }));
       });
 
@@ -682,7 +682,7 @@ app.post('/run', function(req, res) {
     var lastLabel = parseInt(data.counter) + ((data.labels * data.sheets) - 1);
     var tmpFile = "temp/" + tmpQR + data.counter + "-" + lastLabel + ".html";
      
-    fs.writeFile(tmpFile, html, function(err) {
+    fs.writeFile(__dirname + "/" + tmpFile, html, function(err) {
       if(err) {
         console.log(err);
       }
